@@ -25,7 +25,7 @@ impl TypingState {
         }
         // When the input is the current char shift to the left
         if self.current == input.to_string() {
-            self.typed = self.typed.clone() + &self.current;
+            self.typed = format!("{}{}", &self.typed, &self.current);
             if !self.untyped.is_empty(){
                 self.current = self.untyped.remove(0).to_string();
             }
