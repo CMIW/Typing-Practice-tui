@@ -5,6 +5,7 @@
 This is a simple Terminal User Interface (tui) program to practice typing and try [tui-rs](https://docs.rs/crate/tui/latest).
 
 ![tui_typing_practice](https://github.com/CMIW/Typing-Practice-tui/blob/master/Screenshot_typing_practice.png)
+![tui_typing_practice](https://github.com/CMIW/Typing-Practice-tui/blob/master/Screenshot_typing_practice_error.png)
 
 ## Prerequisites
 
