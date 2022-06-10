@@ -1,4 +1,5 @@
-#[derive(Debug)]
+// Derive PartialEq so the implementation of "==" is implicit
+#[derive(Debug, PartialEq)]
 pub struct TypingState {
     pub typed:      String,
     pub mistyped:   String,
@@ -45,18 +46,6 @@ impl TypingState {
         self.untyped.is_empty() && self.current.is_empty()
     }
 }
-
-// Implement the "==" so the struct can be compared
-impl PartialEq for TypingState {
-    fn eq(&self, other: &Self) -> bool {
-        self.typed == other.typed &&
-        self.mistyped == other.mistyped &&
-        self.current == other.current &&
-        self.untyped == other.untyped
-    }
-}
-
-impl Eq for TypingState {}
 
 #[cfg(test)]
 mod tests {
