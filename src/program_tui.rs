@@ -14,7 +14,7 @@ use tui::{
     widgets::{Block, BorderType, Borders, Paragraph, Wrap},
 };
 
-use crate::typing_state::TypingState;
+use typing_state::TypingState;
 
 pub fn run_tui(typing_state: &mut TypingState) -> Result<(), Box<dyn Error>>{
     // setup terminal

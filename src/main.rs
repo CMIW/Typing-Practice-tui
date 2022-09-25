@@ -4,7 +4,7 @@ use std::process;
 use std::path::Path;
 
 use tui_typing_practice::program_tui::run_tui;
-use tui_typing_practice::typing_state::TypingState;
+use typing_state::TypingState;
 
 fn main() {
     // read any command line arguments passed to it and then collect the values into a vector
