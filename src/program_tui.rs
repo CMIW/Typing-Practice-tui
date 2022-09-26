@@ -7,7 +7,7 @@ use crossterm::{
 use tui::{
     Frame,
     Terminal,
-    text::{Span, Spans},
+    text::{Text, Span, Spans},
     style::{Color, Modifier, Style},
     backend::{Backend, CrosstermBackend},
     layout::{Alignment, Layout, Direction, Constraint},
@@ -41,7 +41,8 @@ pub fn run_tui(typing_state: &mut TypingState) -> Result<(), Box<dyn Error>>{
 }
 
 // Loop that displays the UI and waits for event triggers
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, typing_state: &mut TypingState) -> io::Result<()>{
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, typing_state: &mut TypingState)
+-> io::Result<()>{
     loop{
         // display ui
         terminal.draw(|f| ui(f, typing_state))?;
@@ -72,6 +73,49 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, typing_state: &mut TypingStat
     }
 }
 
+// We need to separate the "\n" escape character into different tui::text::Spans to mimic the
+// new line when displaying with tui::widgets::Paragraph.
+fn into_text<'a>(t_s: &TypingState) -> Text<'static>{
+    // The different styles we need to display
+    let typed_style = Style::default().fg(Color::Gray);
+    let mistyped_style = Style::default().fg(Color::Red).bg(Color::White)
+    .add_modifier(Modifier::BOLD);
+    let current_style = Style::default().fg(Color::Black).bg(Color::White)
+    .add_modifier(Modifier::BOLD);
+
+    // Split the new lines and collect them into vectors
+    // We use a map functio to convert the &str from the split into Strings
+    let mut vec0: Vec<String> = t_s.typed.split("\n").into_iter().map(|x| x.to_owned()).collect();
+    let mut vec1: Vec<String> = t_s.untyped.split("\n").into_iter().map(|x| x.to_owned()).collect();
+
+    // We need the last element of vector0 into a span
+    let typed_span = Span::styled(vec0.pop().unwrap(), typed_style);
+    let mistyped_span = Span::styled(t_s.mistyped.clone(), mistyped_style);
+    let current_span = Span::styled(t_s.current.clone(), current_style);
+    // We need the first element of vector1 into a span
+    let untyped_span = Span::styled(vec1.remove(0), Style::default());
+
+    // Create the tui::text::Text struct
+    let mut text = Text::styled(vec0.join("\n"), typed_style);
+    // When there is a new line on mistyped or current we need to separate the untyped_span into
+    // it's own tui::text::Spans to mimic the new line
+    if t_s.mistyped == "\n" || t_s.current == "\n" {
+        let text_vec0: Spans = Spans([typed_span, mistyped_span, current_span].to_vec());
+        let text_vec1: Spans = Spans([untyped_span].to_vec());
+        text.lines.extend_from_slice(&[text_vec0]);
+        text.lines.extend_from_slice(&[text_vec1]);
+    }
+    else{
+        let text_vec: Spans = Spans(
+            [typed_span, mistyped_span, current_span, untyped_span].to_vec()
+        );
+        text.lines.extend_from_slice(&[text_vec]);
+    }
+    text.extend(Text::from(vec1.join("\n")));
+
+    text
+}
+
 // Layout for the ui
 fn ui<B: Backend>(f: &mut Frame<B>, typing_state: &TypingState) {
     let size = f.size();
@@ -94,20 +138,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, typing_state: &TypingState) {
     );
     f.render_widget(title, chunks[0]);
 
-    let text_vec = vec![
-        Span::styled(&typing_state.typed, Style::default().fg(Color::Gray)),
-        Span::styled(
-            &typing_state.mistyped,
-            Style::default().fg(Color::Red).bg(Color::White).add_modifier(Modifier::BOLD)
-        ),
-        Span::styled(
-            &typing_state.current,
-            Style::default().fg(Color::Black).bg(Color::White).add_modifier(Modifier::BOLD)),
-        Span::styled(&typing_state.untyped, Style::default()),
-    ];
-
-    // Style the text to be displayed
-    let text = Spans::from(text_vec);
+    let text = into_text(typing_state);
 
     // Display the text on screen
     let p0 = Paragraph::new(text)

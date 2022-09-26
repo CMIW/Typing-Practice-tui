@@ -30,7 +30,7 @@ fn main() {
     });
 
     // Replace new lines for whitespaces
-    file_contents = file_contents.replace('\n', " ");
+    //file_contents = file_contents.replace('\n', " ");
 
     // Remove the whitespace at the end of the files.
     file_contents.pop().unwrap();
