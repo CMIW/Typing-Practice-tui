@@ -4,7 +4,7 @@ use std::process;
 use std::path::Path;
 
 use tui_typing_practice::program_tui::run_tui;
-use typing_state::TypingState;
+use tui_typing_practice::tui_typing_state::TuiTypingState;
 
 fn main() {
     // read any command line arguments passed to it and then collect the values into a vector
@@ -36,7 +36,7 @@ fn main() {
     file_contents.pop().unwrap();
 
     // Init state
-    let mut typing_state = TypingState::new(&file_contents);
+    let mut typing_state = TuiTypingState::new(&file_contents);
 
     // Run the programs terminal user interface
     let _result = run_tui(&mut typing_state).unwrap_or_else(|err| {
